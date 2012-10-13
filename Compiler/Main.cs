@@ -15,5 +15,12 @@ namespace Compiler
         {
             InitializeComponent();
         }
+
+        private void компілюватиToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            var compiler = new Compiler();
+            tbCompiled.Text = compiler.Compile(tbProgram.Text);
+            MessageBox.Show(compiler.Errors.Aggregate("", (current, error) => current + (error + Environment.NewLine)));
+        }
     }
 }
