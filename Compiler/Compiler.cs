@@ -72,8 +72,8 @@ DBGWIN_EXT_INFO = 0
                 else if ((IsVariable(tokens[0])) && (tokens[1] == "=") && (IsExpresion(tokens[2])))
                 {
                     code += ParceExpresion(tokens[2]);
-                    code += "POP AX"+Environment.NewLine;
-                    code += "MOV " + tokens[0] + ",AX"+Environment.NewLine;
+                    code += "POP AX" + Environment.NewLine;
+                    code += "MOV " + tokens[0] + ",AX" + Environment.NewLine;
                     initialized.Add(tokens[0]);
                 }
                 else
@@ -90,7 +90,7 @@ DBGWIN_EXT_INFO = 0
             compiled += initialization;
             compiled += code;
 
-            compiled+=declared.Aggregate("", (current, variable) => current + ("DumpMem offset " + variable + ", 1" + Environment.NewLine));
+            compiled += declared.Aggregate("", (current, variable) => current + ("DumpMem offset " + variable + ", 1" + Environment.NewLine));
             compiled += @"invoke ExitProcess, NULL
 end start
 end";
@@ -110,7 +110,7 @@ end";
                 {
                     var temp = "";
                     temp += "MOV AX," + token + Environment.NewLine;
-                    temp += "PUSH AX"+Environment.NewLine;
+                    temp += "PUSH AX" + Environment.NewLine;
                     return temp;
                 }
                 else
@@ -122,7 +122,7 @@ end";
             {
                 var temp = "";
                 temp += "MOV AX," + token + Environment.NewLine;
-                temp += "PUSH AX"+Environment.NewLine;
+                temp += "PUSH AX" + Environment.NewLine;
                 return temp;
             }
             var posp = token.IndexOf('+');
@@ -152,13 +152,13 @@ end";
                     if (token[i] == ')') p--;
                     if (p == 0) break;
                 }
-                if (posp == int.MaxValue)
+                if (i + 1 == token.Length)
                 {
                     var temp = "";
                     temp += ParceExpresion(token.Substring(posb + 1, i - 1));
                     return temp;
                 }
-                else
+                else if (token[i + 1] == '+')
                 {
                     var temp = "";
                     temp += ParceExpresion(token.Substring(posb + 1, i - 1));
@@ -169,7 +169,6 @@ end";
                     temp += "PUSH AX" + Environment.NewLine;
                     return temp;
                 }
-                
             }
             return "";
         }
@@ -181,7 +180,7 @@ end";
                     return true;
                 else
                 {
-                    Errors.Add("Змінна "+token+" не ініціалізована");
+                    Errors.Add("Змінна " + token + " не ініціалізована");
                     return false;
                 }
             if (IsNumber(token)) return true;
@@ -207,13 +206,19 @@ end";
                     if (p == 0) break;
                 }
                 if (p != 0) return false;
-                if (posp==int.MaxValue)
+
+                if (i + 1 == token.Length)
                 {
                     return IsExpresion(token.Substring(posb + 1, i - 1));
-                } else
+                }
+                else if (token[i + 1] == '+')
                 {
                     return IsExpresion(token.Substring(posb + 1, i - 1)) &&
                            IsExpresion(token.Substring(i + 2, token.Length - i - 2));
+                }
+                else
+                {
+                    return false;
                 }
             }
             return false;
@@ -235,19 +240,20 @@ end";
             {
                 return new[] { command };
             }
-            for (int i = 0; i < command.Count()-1; i++)
+            for (int i = 0; i < command.Count() - 2; i++)
             {
-                if (((!char.IsLetter(command[i])||!char.IsLetter(command[i+2])))&&(command[i+1]==' '))
+                if (((!char.IsLetter(command[i]) || !char.IsLetter(command[i + 2]))) && (command[i + 1] == ' '))
                 {
-                    command=command.Remove(i+1, 1);
+                    command = command.Remove(i + 1, 1);
                 }
             }
-            return new[] { command.Substring(0, command.IndexOf('=')), "=", command.Substring(command.IndexOf('=') + 1, command.Length - command.IndexOf('=')-1) };
+            return new[] { command.Substring(0, command.IndexOf('=')), "=", command.Substring(command.IndexOf('=') + 1, command.Length - command.IndexOf('=') - 1) };
         }
 
         private List<string> Commands(String program)
         {
             var separator = new[] { ";" };
+            program.Replace("\r\n", "");
             var commands = new List<String>(program.Split(separator, StringSplitOptions.RemoveEmptyEntries).AsEnumerable());
             for (var i = 0; i < commands.Count; i++)
                 commands[i] = commands[i].Trim().Replace("\r\n", "");
