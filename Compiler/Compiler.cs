@@ -35,7 +35,7 @@ DBGWIN_EXT_INFO = 0
 ";
         public String Compile(String program)
         {
-            List<String> commands = Commands(program);
+            IEnumerable<string> commands = Commands(program);
             foreach (var tokens in commands.Select(Parce))
             {
                 if (IsVariable(tokens[0]) && (tokens.Count() == 1))
@@ -98,9 +98,9 @@ end";
             return compiled;
         }
 
-        private string Optimize(string compiled)
+        private string Optimize(string program)
         {
-            return compiled.Replace("PUSH AX\n\rPOP AX", "");
+            return program.Replace("PUSH AX\n\rPOP AX", "");
         }
 
         private string ParceExpresion(string token)
@@ -216,17 +216,21 @@ end";
         {
             if (command.IndexOf('=') == -1)
             {
-                return new String[] { command };
+                return new[] { command };
             }
-            else
+            for (int i = 0; i < command.Count()-1; i++)
             {
-                return new String[] { command.Substring(0, command.IndexOf('=')), "=", command.Substring(command.IndexOf('=') + 1, command.Length - 2) };
+                if (((!char.IsLetter(command[i])||!char.IsLetter(command[i+2])))&&(command[i+1]==' '))
+                {
+                    command=command.Remove(i+1, 1);
+                }
             }
+            return new[] { command.Substring(0, command.IndexOf('=')), "=", command.Substring(command.IndexOf('=') + 1, command.Length - command.IndexOf('=')-1) };
         }
 
-        private List<String> Commands(String program)
+        private List<string> Commands(String program)
         {
-            var separator = new String[] { ";" };
+            var separator = new[] { ";" };
             var commands = new List<String>(program.Split(separator, StringSplitOptions.RemoveEmptyEntries).AsEnumerable());
             for (var i = 0; i < commands.Count; i++)
                 commands[i] = commands[i].Trim().Replace("\r\n", "");
