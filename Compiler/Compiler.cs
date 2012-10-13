@@ -100,7 +100,7 @@ end";
 
         private string Optimize(string program)
         {
-            return program.Replace("PUSH AX\n\rPOP AX", "");
+            return program.Replace("PUSH AX\r\nPOP AX\r\n", "");
         }
 
         private string ParceExpresion(string token)
@@ -152,14 +152,24 @@ end";
                     if (token[i] == ')') p--;
                     if (p == 0) break;
                 }
-                var temp = "";
-                temp += ParceExpresion(token.Substring(posb + 1, i - 1));
-                temp += ParceExpresion(token.Substring(i + 2, token.Length - i - 2));
-                temp += "POP AX" + Environment.NewLine;
-                temp += "POP BX" + Environment.NewLine;
-                temp += "ADD AX,BX" + Environment.NewLine;
-                temp += "PUSH AX" + Environment.NewLine;
-                return temp;
+                if (posp == int.MaxValue)
+                {
+                    var temp = "";
+                    temp += ParceExpresion(token.Substring(posb + 1, i - 1));
+                    return temp;
+                }
+                else
+                {
+                    var temp = "";
+                    temp += ParceExpresion(token.Substring(posb + 1, i - 1));
+                    temp += ParceExpresion(token.Substring(i + 2, token.Length - i - 2));
+                    temp += "POP AX" + Environment.NewLine;
+                    temp += "POP BX" + Environment.NewLine;
+                    temp += "ADD AX,BX" + Environment.NewLine;
+                    temp += "PUSH AX" + Environment.NewLine;
+                    return temp;
+                }
+                
             }
             return "";
         }
@@ -196,8 +206,14 @@ end";
                     if (token[i] == ')') p--;
                     if (p == 0) break;
                 }
-                return IsExpresion(token.Substring(posb + 1, i - 1)) &&
-                       IsExpresion(token.Substring(i + 2, token.Length - i - 2));
+                if (posp==int.MaxValue)
+                {
+                    return IsExpresion(token.Substring(posb + 1, i - 1));
+                } else
+                {
+                    return IsExpresion(token.Substring(posb + 1, i - 1)) &&
+                           IsExpresion(token.Substring(i + 2, token.Length - i - 2));
+                }
             }
             return false;
         }
