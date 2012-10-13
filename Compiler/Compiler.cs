@@ -75,11 +75,10 @@ DBGWIN_EXT_INFO = 0
                     code += "POP AX"+Environment.NewLine;
                     code += "MOV " + tokens[0] + ",AX"+Environment.NewLine;
                     initialized.Add(tokens[0]);
-
                 }
                 else
                 {
-                    Errors.Add("Невідома команда");
+                    Errors.Add("Невідома команда (помилка в виразі)");
                 }
             }
 
@@ -95,7 +94,13 @@ DBGWIN_EXT_INFO = 0
             compiled += @"invoke ExitProcess, NULL
 end start
 end";
+            compiled = Optimize(compiled);
             return compiled;
+        }
+
+        private string Optimize(string compiled)
+        {
+            return compiled.Replace("PUSH AX\n\rPOP AX", "");
         }
 
         private string ParceExpresion(string token)
