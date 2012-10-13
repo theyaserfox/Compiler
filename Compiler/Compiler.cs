@@ -9,8 +9,11 @@ namespace Compiler
     {
         List<String> declared = new List<String>();
         List<String> initialized = new List<String>();
+        List<String> startinit = new List<String>();
         private String initialization = "";
-        private String code = "";
+        private String code = @".code
+start:
+";
 
         public List<String> Errors = new List<String>();
         String compiled = @".586
@@ -54,6 +57,7 @@ DBGWIN_EXT_INFO = 0
                         {
                             initialization += tokens[0] + " DW " + tokens[2] + Environment.NewLine;
                             initialized.Add(tokens[0]);
+                            startinit.Add(tokens[0]);
                         }
                         else
                         {
@@ -68,7 +72,10 @@ DBGWIN_EXT_INFO = 0
                 else if ((IsVariable(tokens[0])) && (tokens[1] == "=") && (IsExpresion(tokens[2])))
                 {
                     code += ParceExpresion(tokens[2]);
+                    code += "POP AX"+Environment.NewLine;
+                    code += "MOV " + tokens[0] + ",AX"+Environment.NewLine;
                     initialized.Add(tokens[0]);
+
                 }
                 else
                 {
@@ -76,20 +83,80 @@ DBGWIN_EXT_INFO = 0
                 }
             }
 
-            foreach (var variable in declared.Where(variable => !initialized.Contains(variable)))
+            foreach (var variable in declared.Where(variable => !startinit.Contains(variable)))
             {
                 initialization += variable + " DW 0" + Environment.NewLine;
             }
 
             compiled += initialization;
+            compiled += code;
 
+            compiled+=declared.Aggregate("", (current, variable) => current + ("DumpMem offset " + variable + ", 1" + Environment.NewLine));
+            compiled += @"invoke ExitProcess, NULL
+end start
+end";
             return compiled;
         }
 
-        private string ParceExpresion(string p)
+        private string ParceExpresion(string token)
         {
-            MessageBox.Show("Test");
-            throw new NotImplementedException();
+            if (IsVariable(token))
+                if (initialized.Contains(token))
+                {
+                    var temp = "";
+                    temp += "MOV AX," + token + Environment.NewLine;
+                    temp += "PUSH AX"+Environment.NewLine;
+                    return temp;
+                }
+                else
+                {
+                    Errors.Add("Змінна " + token + " не ініціалізована");
+                    return "";
+                }
+            if (IsNumber(token))
+            {
+                var temp = "";
+                temp += "MOV AX," + token + Environment.NewLine;
+                temp += "PUSH AX"+Environment.NewLine;
+                return temp;
+            }
+            var posp = token.IndexOf('+');
+            var posb = token.IndexOf('(');
+            if ((posb == -1) && (posp == -1)) return "";
+            if (posb < 0) posb = int.MaxValue;
+            if (posp < 0) posp = int.MaxValue;
+            if (posp < posb)
+            {
+                var temp = "";
+                temp += ParceExpresion(token.Substring(0, posp));
+                temp += ParceExpresion(token.Substring(posp + 1, token.Length - posp - 1));
+                temp += "POP AX" + Environment.NewLine;
+                temp += "POP BX" + Environment.NewLine;
+                temp += "ADD AX,BX" + Environment.NewLine;
+                temp += "PUSH AX" + Environment.NewLine;
+                return temp;
+            }
+            if (posb != 0) return "";
+            var p = 1;
+            if (posb < posp)
+            {
+                int i;
+                for (i = 1; i < token.Length; i++)
+                {
+                    if (token[i] == '(') p++;
+                    if (token[i] == ')') p--;
+                    if (p == 0) break;
+                }
+                var temp = "";
+                temp += ParceExpresion(token.Substring(posb + 1, i - 1));
+                temp += ParceExpresion(token.Substring(i + 2, token.Length - i - 2));
+                temp += "POP AX" + Environment.NewLine;
+                temp += "POP BX" + Environment.NewLine;
+                temp += "ADD AX,BX" + Environment.NewLine;
+                temp += "PUSH AX" + Environment.NewLine;
+                return temp;
+            }
+            return "";
         }
 
         private bool IsExpresion(string token)
