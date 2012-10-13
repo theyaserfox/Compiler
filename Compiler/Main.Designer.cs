@@ -29,8 +29,8 @@
         private void InitializeComponent()
         {
             this.menuStrip1 = new System.Windows.Forms.MenuStrip();
-            this.splitContainer1 = new System.Windows.Forms.SplitContainer();
             this.компілюватиToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.splitContainer1 = new System.Windows.Forms.SplitContainer();
             this.tbProgram = new System.Windows.Forms.TextBox();
             this.tbCompiled = new System.Windows.Forms.TextBox();
             this.menuStrip1.SuspendLayout();
@@ -49,6 +49,14 @@
             this.menuStrip1.TabIndex = 0;
             this.menuStrip1.Text = "menuStrip1";
             // 
+            // компілюватиToolStripMenuItem
+            // 
+            this.компілюватиToolStripMenuItem.Name = "компілюватиToolStripMenuItem";
+            this.компілюватиToolStripMenuItem.ShortcutKeys = System.Windows.Forms.Keys.F5;
+            this.компілюватиToolStripMenuItem.Size = new System.Drawing.Size(93, 20);
+            this.компілюватиToolStripMenuItem.Text = "Компілювати";
+            this.компілюватиToolStripMenuItem.Click += new System.EventHandler(this.компілюватиToolStripMenuItem_Click);
+            // 
             // splitContainer1
             // 
             this.splitContainer1.Dock = System.Windows.Forms.DockStyle.Fill;
@@ -65,13 +73,6 @@
             this.splitContainer1.Size = new System.Drawing.Size(676, 440);
             this.splitContainer1.SplitterDistance = 318;
             this.splitContainer1.TabIndex = 1;
-            // 
-            // компілюватиToolStripMenuItem
-            // 
-            this.компілюватиToolStripMenuItem.Name = "компілюватиToolStripMenuItem";
-            this.компілюватиToolStripMenuItem.Size = new System.Drawing.Size(93, 20);
-            this.компілюватиToolStripMenuItem.Text = "Компілювати";
-            this.компілюватиToolStripMenuItem.Click += new System.EventHandler(this.компілюватиToolStripMenuItem_Click);
             // 
             // tbProgram
             // 

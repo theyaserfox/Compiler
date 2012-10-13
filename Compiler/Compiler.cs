@@ -206,6 +206,7 @@ end";
                     if (token[i] == ')') p--;
                     if (p == 0) break;
                 }
+                if (p != 0) return false;
                 if (posp==int.MaxValue)
                 {
                     return IsExpresion(token.Substring(posb + 1, i - 1));
