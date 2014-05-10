@@ -506,7 +506,9 @@ end";
             tbProgram.SelectionColor = Color.Black;
             //No semi_colon
             ChangeColor(tbProgram, 0, "[^,;]+", Color.Red);
-            ChangeColor(tbProgram, 0, "\n.*?;", Color.Black);
+            ChangeColor(tbProgram, 0, "#.*", Color.Black);
+            ChangeColor(tbProgram, 0, "#include", Color.Purple);
+            ChangeColor(tbProgram, 0, ".*?;", Color.Black);
             //find comments            
             ChangeColor(tbProgram, 0, "(/\\*([^*]|[\r\n]|(\\*+([^*/]|[\r\n])))*\\*+/)|(//.*)", Color.Green);
             //find types
@@ -529,8 +531,7 @@ end";
             //check ()
 
             // if () = (
-            //if (FindRegexCount(tbProgram, 1, @"\(.*?\)") != FindRegexCount(tbProgram, 1, "\\("))
-            if (FindRegexCount(tbProgram, 1, @"(.*)") != FindRegexCount(tbProgram, 0, "\\("))
+            if (FindRegexCount(tbProgram, 1, @"\(.*?\)") != FindRegexCount(tbProgram, 1, "\\("))
             {
 
                 ListViewItem item = new ListViewItem();
@@ -543,7 +544,7 @@ end";
             }
 
 
-            if (FindRegexCount(tbProgram, 1, @"(.*)") != FindRegexCount(tbProgram, 0, "\\)"))
+            if (FindRegexCount(tbProgram, 1, @"\(.*?\)") != FindRegexCount(tbProgram, 1, "\\)"))
             {
 
                 ListViewItem item = new ListViewItem();
@@ -554,7 +555,7 @@ end";
                 List_Error.Items.Add(item);
             }
 
-            if (FindRegexCount(tbProgram, 1, "{.*}") != FindRegexCount(tbProgram, 1, "\\{"))
+            if (FindRegexCount(tbProgram, 1, @"\{.*?\}") != FindRegexCount(tbProgram, 1, "\\{"))
             {
 
                 ListViewItem item = new ListViewItem();
@@ -567,7 +568,7 @@ end";
             }
 
 
-            if (FindRegexCount(tbProgram, 1, "{.*}") != FindRegexCount(tbProgram, 1, "\\}"))
+            if (FindRegexCount(tbProgram, 1, @"\{.*?\}") != FindRegexCount(tbProgram, 1, "\\}"))
             {
 
                 ListViewItem item = new ListViewItem();
