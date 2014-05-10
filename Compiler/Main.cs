@@ -609,7 +609,7 @@ end";
             ChangeColor(tbProgram, 0, @"\bfor\b", Color.Blue);
             ChangeColor(tbProgram, 0, @"\bforeach\b", Color.Blue);
             //include
-            ChangeColor(tbProgram, 0, @"\b#include\b", Color.Purple);
+            ChangeColor(tbProgram, 0, "#include", Color.Purple);
             //using
             ChangeColor(tbProgram, 0, @"\busing\b", Color.Blue);
             //return
