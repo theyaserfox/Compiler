@@ -127,6 +127,20 @@ DBGWIN_EXT_INFO = 0
         {
             IEnumerable<string> commands = Commands(program);
             int line = 0;
+
+
+            Regex R3 = new Regex("if.*\\(.*?\\)");
+            MatchCollection New_Line_Match1 = R3.Matches(program);
+            string s = null;
+            foreach (Match m in New_Line_Match1)
+            {
+                s = m.Value.ToString();
+                MessageBox.Show(s);
+            }
+            if (New_Line_Match1.Count == 0)
+            {
+                List_Error.Items.Add("Error In The If Experession");
+            }
             foreach (var tokens in commands.Select(Parce))
             {
                 line++;
@@ -396,6 +410,7 @@ end";
                     return temp;
                 }
             }
+         
             return "";
         }
 
@@ -722,6 +737,9 @@ end";
                 List_Error.Items.Add(item);
             }
 
+          
+                
+    
                 tbProgram.SelectionColor = Color.Black;
         }
 
