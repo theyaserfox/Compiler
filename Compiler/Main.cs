@@ -550,8 +550,10 @@ end";
             return commands;
         }
 
-        private static void ChangeColor(RichTextBox RTB, int StartPos, string Regex1, Color color)
+        private static bool ChangeColor(RichTextBox RTB, int StartPos, string Regex1, Color color)
         {
+            bool t = false;
+
             Regex R = new Regex(Regex1);
             //   RTB.SelectAll();
             //  RTB.SelectionColor = Color.White;
@@ -562,9 +564,12 @@ end";
                 RTB.Select(Match.Index, Match.Length);
                 RTB.SelectionColor = color;
                 RTB.SelectionStart = StartPos;
+                t = true;
             }
             // rtb.SelectionColor = Color.Black;
+            return t;
         }
+
 
         private void tbProgram_TextChanged(object sender, EventArgs e)
         {
@@ -573,8 +578,18 @@ end";
             List_Error.Items.Clear();
             tbProgram.SelectionColor = Color.Black;
             //No semi_colon
-            ChangeColor(tbProgram, 0, "[^,;]+", Color.Red);
-            ChangeColor(tbProgram, 0, "#.*", Color.Black);
+            //ChangeColor(tbProgram, 0, "[^,;]+", Color.Red);
+            if (!tbProgram.Text.EndsWith("\n"))
+                if (ChangeColor(tbProgram, 0, ".*[^;]$", Color.Red) && !tbCompiled.Text.EndsWith("\n"))
+                {
+                    ListViewItem item = new ListViewItem();
+                    item.Text = error_no.ToString();
+                    error_no++;
+                    item.SubItems.Add("");
+                    item.SubItems.Add("SemiColon not added");
+                    List_Error.Items.Add(item);
+                    //Errors.Add("Error with parenthese");
+                }
             ChangeColor(tbProgram, 0, ".*?\\(\\)", Color.Black);
             ChangeColor(tbProgram, 0, ".*?;", Color.Black);
             ChangeColor(tbProgram, 0, "{?", Color.Black);
@@ -716,6 +731,40 @@ end";
             RTB.Select(RTB.Text.Length, 1);
             MatchCollection New_Line_Match = R.Matches(RTB.Text);
             return New_Line_Match.Count;
+        }
+
+        private void LoadnToolStripMenuItem_Click(object sender, EventArgs e)
+        {    
+            OpenFileDialog OFD = new OpenFileDialog();
+            //set the title of the save file dialog
+            OFD.Title = "Open TXT from ....";
+            //adding a filter to make sure it saved as exe
+            OFD.Filter = "TXT|*.txt";
+            if (OFD.ShowDialog() == System.Windows.Forms.DialogResult.OK)
+                tbProgram.LoadFile(OFD.FileName, RichTextBoxStreamType.PlainText);
+
+        }
+
+        private void saveToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            if (tbProgram.Text.Length == 0)
+                MessageBox.Show("The Editor is empty");
+            else
+            {
+                SaveFileDialog SFD = new SaveFileDialog();
+                //set the title of the save file dialog
+                SFD.Title = "Save TXT to ....";
+                //adding a filter to make sure it saved as exe
+                SFD.Filter = "TXT|*.txt";
+                if (SFD.ShowDialog() == System.Windows.Forms.DialogResult.OK)
+                    tbProgram.SaveFile(SFD.FileName, RichTextBoxStreamType.PlainText);
+            }
+
+        }
+
+        private void ExitToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            Application.Exit();
         }
     }
 }
