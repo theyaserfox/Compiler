@@ -33,12 +33,14 @@
             this.tbCompiled = new System.Windows.Forms.TextBox();
             this.tbProgram = new System.Windows.Forms.TextBox();
             this.splitContainer1 = new System.Windows.Forms.SplitContainer();
-            this.literalsView = new System.Windows.Forms.ListView();
-            this.label1 = new System.Windows.Forms.Label();
-            this.constantsView = new System.Windows.Forms.ListView();
-            this.Constants = new System.Windows.Forms.Label();
-            this.symbolsView = new System.Windows.Forms.ListView();
             this.label2 = new System.Windows.Forms.Label();
+            this.Constants = new System.Windows.Forms.Label();
+            this.label1 = new System.Windows.Forms.Label();
+            this.symbolsView = new System.Windows.Forms.ListView();
+            this.constantsView = new System.Windows.Forms.ListView();
+            this.literalsView = new System.Windows.Forms.ListView();
+            this.reservedWordsView = new System.Windows.Forms.ListView();
+            this.label3 = new System.Windows.Forms.Label();
             this.menuStrip1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.splitContainer1)).BeginInit();
             this.splitContainer1.Panel1.SuspendLayout();
@@ -60,14 +62,14 @@
             // 
             this.компілюватиToolStripMenuItem.Name = "компілюватиToolStripMenuItem";
             this.компілюватиToolStripMenuItem.ShortcutKeys = System.Windows.Forms.Keys.F5;
-            this.компілюватиToolStripMenuItem.Size = new System.Drawing.Size(93, 20);
-            this.компілюватиToolStripMenuItem.Text = "Компілювати";
-            this.компілюватиToolStripMenuItem.Click += new System.EventHandler(this.компілюватиToolStripMenuItem_Click);
+            this.компілюватиToolStripMenuItem.Size = new System.Drawing.Size(64, 20);
+            this.компілюватиToolStripMenuItem.Text = "Compile";
+            this.компілюватиToolStripMenuItem.Click += new System.EventHandler(this.compileToolStripMenuItem_Click);
             // 
             // tbCompiled
             // 
-            this.tbCompiled.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom)
-            | System.Windows.Forms.AnchorStyles.Left)
+            this.tbCompiled.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
             this.tbCompiled.Location = new System.Drawing.Point(3, 3);
             this.tbCompiled.Multiline = true;
@@ -77,8 +79,8 @@
             // 
             // tbProgram
             // 
-            this.tbProgram.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom)
-            | System.Windows.Forms.AnchorStyles.Left)
+            this.tbProgram.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
             this.tbProgram.Location = new System.Drawing.Point(3, 3);
             this.tbProgram.Multiline = true;
@@ -95,9 +97,11 @@
             // 
             // splitContainer1.Panel1
             // 
+            this.splitContainer1.Panel1.Controls.Add(this.label3);
             this.splitContainer1.Panel1.Controls.Add(this.label2);
             this.splitContainer1.Panel1.Controls.Add(this.Constants);
             this.splitContainer1.Panel1.Controls.Add(this.label1);
+            this.splitContainer1.Panel1.Controls.Add(this.reservedWordsView);
             this.splitContainer1.Panel1.Controls.Add(this.symbolsView);
             this.splitContainer1.Panel1.Controls.Add(this.constantsView);
             this.splitContainer1.Panel1.Controls.Add(this.literalsView);
@@ -112,31 +116,14 @@
             this.splitContainer1.SplitterDistance = 318;
             this.splitContainer1.TabIndex = 1;
             // 
-            // literalsView
+            // label2
             // 
-            this.literalsView.Cursor = System.Windows.Forms.Cursors.Default;
-            this.literalsView.Location = new System.Drawing.Point(3, 185);
-            this.literalsView.Name = "literalsView";
-            this.literalsView.Size = new System.Drawing.Size(121, 130);
-            this.literalsView.TabIndex = 1;
-            this.literalsView.UseCompatibleStateImageBehavior = false;
-            // 
-            // label1
-            // 
-            this.label1.AutoSize = true;
-            this.label1.Location = new System.Drawing.Point(45, 164);
-            this.label1.Name = "label1";
-            this.label1.Size = new System.Drawing.Size(40, 13);
-            this.label1.TabIndex = 2;
-            this.label1.Text = "Literals";
-            // 
-            // constantsView
-            // 
-            this.constantsView.Location = new System.Drawing.Point(130, 185);
-            this.constantsView.Name = "constantsView";
-            this.constantsView.Size = new System.Drawing.Size(121, 130);
-            this.constantsView.TabIndex = 1;
-            this.constantsView.UseCompatibleStateImageBehavior = false;
+            this.label2.AutoSize = true;
+            this.label2.Location = new System.Drawing.Point(293, 164);
+            this.label2.Name = "label2";
+            this.label2.Size = new System.Drawing.Size(46, 13);
+            this.label2.TabIndex = 2;
+            this.label2.Text = "Symbols";
             // 
             // Constants
             // 
@@ -147,6 +134,15 @@
             this.Constants.TabIndex = 2;
             this.Constants.Text = "Constants";
             // 
+            // label1
+            // 
+            this.label1.AutoSize = true;
+            this.label1.Location = new System.Drawing.Point(45, 164);
+            this.label1.Name = "label1";
+            this.label1.Size = new System.Drawing.Size(40, 13);
+            this.label1.TabIndex = 2;
+            this.label1.Text = "Literals";
+            // 
             // symbolsView
             // 
             this.symbolsView.Location = new System.Drawing.Point(257, 185);
@@ -155,14 +151,39 @@
             this.symbolsView.TabIndex = 1;
             this.symbolsView.UseCompatibleStateImageBehavior = false;
             // 
-            // label2
+            // constantsView
             // 
-            this.label2.AutoSize = true;
-            this.label2.Location = new System.Drawing.Point(293, 164);
-            this.label2.Name = "label2";
-            this.label2.Size = new System.Drawing.Size(46, 13);
-            this.label2.TabIndex = 2;
-            this.label2.Text = "Symbols";
+            this.constantsView.Location = new System.Drawing.Point(130, 185);
+            this.constantsView.Name = "constantsView";
+            this.constantsView.Size = new System.Drawing.Size(121, 130);
+            this.constantsView.TabIndex = 1;
+            this.constantsView.UseCompatibleStateImageBehavior = false;
+            // 
+            // literalsView
+            // 
+            this.literalsView.Cursor = System.Windows.Forms.Cursors.Default;
+            this.literalsView.Location = new System.Drawing.Point(3, 185);
+            this.literalsView.Name = "literalsView";
+            this.literalsView.Size = new System.Drawing.Size(121, 130);
+            this.literalsView.TabIndex = 1;
+            this.literalsView.UseCompatibleStateImageBehavior = false;
+            // 
+            // reservedWordsView
+            // 
+            this.reservedWordsView.Location = new System.Drawing.Point(384, 185);
+            this.reservedWordsView.Name = "reservedWordsView";
+            this.reservedWordsView.Size = new System.Drawing.Size(121, 130);
+            this.reservedWordsView.TabIndex = 1;
+            this.reservedWordsView.UseCompatibleStateImageBehavior = false;
+            // 
+            // label3
+            // 
+            this.label3.AutoSize = true;
+            this.label3.Location = new System.Drawing.Point(402, 164);
+            this.label3.Name = "label3";
+            this.label3.Size = new System.Drawing.Size(84, 13);
+            this.label3.TabIndex = 2;
+            this.label3.Text = "Reserved words";
             // 
             // Main
             // 
@@ -173,7 +194,7 @@
             this.Controls.Add(this.menuStrip1);
             this.MainMenuStrip = this.menuStrip1;
             this.Name = "Main";
-            this.Text = "Form1";
+            this.Text = "Compiler";
             this.menuStrip1.ResumeLayout(false);
             this.menuStrip1.PerformLayout();
             this.splitContainer1.Panel1.ResumeLayout(false);
@@ -200,5 +221,7 @@
         private System.Windows.Forms.ListView constantsView;
         private System.Windows.Forms.Label label2;
         private System.Windows.Forms.ListView symbolsView;
+        private System.Windows.Forms.Label label3;
+        private System.Windows.Forms.ListView reservedWordsView;
     }
 }

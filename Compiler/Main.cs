@@ -16,8 +16,12 @@ namespace Compiler
             InitializeComponent();
         }
 
-        private void компілюватиToolStripMenuItem_Click(object sender, EventArgs e)
+        private void compileToolStripMenuItem_Click(object sender, EventArgs e)
         {
+            literalsView.Items.Clear();
+            constantsView.Items.Clear();
+            symbolsView.Items.Clear();
+            reservedWordsView.Items.Clear();
             tbCompiled.Text = Compile(tbProgram.Text);
             tbCompiled.Text = Errors.Aggregate("", (current, error) => current + (error + Environment.NewLine));
         }
@@ -53,25 +57,29 @@ DBGWIN_EXT_INFO = 0
             IEnumerable<string> commands = Commands(program);
             foreach (var tokens in commands.Select(Parce))
             {
-                #region show tokens
-                string show = "";
-                for (int i = 0; i < tokens.Count(); i++)
-                    show += tokens[i] + " ";
-                MessageBox.Show(show);
-                #endregion
+                //#region show tokens
+                //string show = "";
+                //for (int i = 0; i < tokens.Count(); i++)
+                //    show += tokens[i] + " ";
+                //MessageBox.Show(show);
+                //#endregion
 
                 #region scanning
-                literalsView.Items.Clear();
-                constantsView.Items.Clear();
-                symbolsView.Items.Clear();
+                var separator = new[] { " " };
                 for (int i = 0; i < tokens.Count(); i++)
                 {
-                    if (IsVariable(tokens[i]))
-                        literalsView.Items.Add(tokens[i]);
-                    else if (IsNumber(tokens[i]))
-                        constantsView.Items.Add(tokens[i]);
-                    else if (IsSymbol(tokens[i]))
-                        symbolsView.Items.Add(tokens[i]);
+                    IEnumerable<string> words = tokens[i].Split(separator, StringSplitOptions.RemoveEmptyEntries);
+                    foreach (var word in words)
+                    {
+                        if (IsReservedWord(word))
+                            reservedWordsView.Items.Add(word);
+                        else if (IsSymbol(word))
+                            symbolsView.Items.Add(word);
+                        else if (IsNumber(word))
+                            constantsView.Items.Add(word);
+                        else if (IsVariable(word))
+                            literalsView.Items.Add(word);
+                    }
                 }
                 #endregion
 
@@ -275,9 +283,21 @@ end";
         {
             switch (token)
             {
-                case ";":
                 case ",":
                 case "=":
+                    return true;
+            }
+            return false;
+        }
+
+        private bool IsReservedWord(String token)
+        {
+            switch (token)
+            {
+                case "int":
+                case "string":
+                case "for":
+                case "while":
                     return true;
             }
             return false;
@@ -301,11 +321,17 @@ end";
 
         private List<string> Commands(String program)
         {
-            var separator = new[] { ";" };
+            int semi = program.Count(c => c == ';');
+            for(int i = 0; i < semi; i++)
+                symbolsView.Items.Add(";");
+
+            var separator = new[] { ";", "\r\n" };
             program.Replace("\r\n", "");
             var commands = new List<String>(program.Split(separator, StringSplitOptions.RemoveEmptyEntries).AsEnumerable());
             for (var i = 0; i < commands.Count; i++)
+            {
                 commands[i] = commands[i].Trim().Replace("\r\n", "");
+            }
             return commands;
         }
     }
