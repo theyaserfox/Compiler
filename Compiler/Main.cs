@@ -6,26 +6,13 @@ using System.Drawing;
 using System.Linq;
 using System.Text;
 using System.Windows.Forms;
+using System.Text.RegularExpressions;
+using System.CodeDom.Compiler;
 
 namespace Compiler
 {
     public partial class Main : Form
     {
-        public Main()
-        {
-            InitializeComponent();
-        }
-
-        private void compileToolStripMenuItem_Click(object sender, EventArgs e)
-        {
-            literalsView.Items.Clear();
-            constantsView.Items.Clear();
-            symbolsView.Items.Clear();
-            reservedWordsView.Items.Clear();
-            tbCompiled.Text = Compile(tbProgram.Text);
-            tbCompiled.Text = Errors.Aggregate("", (current, error) => current + (error + Environment.NewLine));
-        }
-
         List<String> declared = new List<String>();
         List<String> initialized = new List<String>();
         List<String> startinit = new List<String>();
@@ -52,6 +39,36 @@ includelib \masm32\lib\debug.lib
 DBGWIN_EXT_INFO = 0
 .data
 ";
+
+        int error_no = 1;
+
+        public Main()
+        {
+            InitializeComponent();
+        }
+
+        private void compileToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            literalsView.Items.Clear();
+            constantsView.Items.Clear();
+            symbolsView.Items.Clear();
+            reservedWordsView.Items.Clear();
+            tbCompiled.Text = Compile(tbProgram.Text);
+            tbCompiled.Text = Errors.Aggregate("", (current, error) => current + (error + Environment.NewLine));
+        }
+
+        private void clearToolStripMenuItem_Click(object sender, System.EventArgs e)
+        {
+            literalsView.Items.Clear();
+            constantsView.Items.Clear();
+            symbolsView.Items.Clear();
+            reservedWordsView.Items.Clear();
+            tbProgram.Clear();
+            tbCompiled.Clear();
+            List_Error.Items.Clear();
+            error_no = 1;
+        }
+
         public String Compile(String program)
         {
             IEnumerable<string> commands = Commands(program);
@@ -69,16 +86,58 @@ DBGWIN_EXT_INFO = 0
                 for (int i = 0; i < tokens.Count(); i++)
                 {
                     IEnumerable<string> words = tokens[i].Split(separator, StringSplitOptions.RemoveEmptyEntries);
-                    foreach (var word in words)
+                  
+                    foreach (var wordNow in words)
                     {
-                        if (IsReservedWord(word))
-                            reservedWordsView.Items.Add(word);
-                        else if (IsSymbol(word))
-                            symbolsView.Items.Add(word);
-                        else if (IsNumber(word))
-                            constantsView.Items.Add(word);
-                        else if (IsVariable(word))
-                            literalsView.Items.Add(word);
+                        string word = wordNow;
+                        string now = "";
+                        int ii = 0;
+                        if (word[ii] == '#')
+                        {
+                            symbolsView.Items.Add("#");
+                            string predecessor = "";
+                            int iii;
+                            for (iii = 1; iii < word.Length && word[iii] != '<'; iii++)
+                            {
+                                predecessor += word[iii];
+                            }
+                            string include = "";
+                            for ( ;iii < word.Length; iii++)
+                            {
+                                if(word[iii] == '>')
+                                {
+                                    iii++;
+                                    symbolsView.Items.Add(">");
+                                    break;
+                                }
+                                if (IsSymbol(word[iii].ToString()))
+                                    symbolsView.Items.Add(word[iii].ToString());
+                                else
+                                    include += word[iii];
+                            }
+                            if (include != "")
+                                includesView.Items.Add(include);
+                            predecessorsView.Items.Add(predecessor);
+                            word = word.Substring(iii);
+                        }
+
+                        for(ii = 0; ii < word.Count(); ii++) {
+                            
+                            if (IsSymbol(word[ii].ToString()))
+                            {
+                                symbolsView.Items.Add(word[ii].ToString());
+                            }
+                            else
+                                now += word[ii];
+                        }
+                        if (now == "")
+                            break;
+                        if (IsReservedWord(now))
+                            reservedWordsView.Items.Add(now);
+                        else if (IsNumber(now))
+                            constantsView.Items.Add(now);
+                        else if (IsVariable(now))
+                            literalsView.Items.Add(now);
                     }
                 }
                 #endregion
@@ -285,6 +344,12 @@ end";
             {
                 case ",":
                 case "=":
+                case "(":
+                case ")":
+                case "{":
+                case "}":
+                case "<":
+                case ">":
                     return true;
             }
             return false;
@@ -298,6 +363,7 @@ end";
                 case "string":
                 case "for":
                 case "while":
+                case "main":
                     return true;
             }
             return false;
@@ -333,6 +399,116 @@ end";
                 commands[i] = commands[i].Trim().Replace("\r\n", "");
             }
             return commands;
+        }
+
+        private static void ChangeColor(RichTextBox RTB, int StartPos, string Regex1, Color color)
+        {
+            Regex R = new Regex(Regex1);
+            //   RTB.SelectAll();
+            //  RTB.SelectionColor = Color.White;
+            RTB.Select(RTB.Text.Length, 1);
+
+            foreach (Match Match in R.Matches(RTB.Text))
+            {
+                RTB.Select(Match.Index, Match.Length);
+                RTB.SelectionColor = color;
+                RTB.SelectionStart = StartPos;
+            }
+            // rtb.SelectionColor = Color.Black;
+        }
+
+        private void tbProgram_TextChanged(object sender, EventArgs e)
+        {
+            
+            // .Items.Clear();
+            error_no = 1;
+            List_Error.Items.Clear();
+            tbProgram.SelectionColor = Color.Black;
+            //No semi_colon
+            ChangeColor(tbProgram, 0, "[^,;]+", Color.Red);
+            ChangeColor(tbProgram, 0, "\n.*?;", Color.Black);
+            //find comments            
+            ChangeColor(tbProgram, 0, "(/\\*([^*]|[\r\n]|(\\*+([^*/]|[\r\n])))*\\*+/)|(//.*)", Color.Green);
+            //find types
+            ChangeColor(tbProgram, 0, "int", Color.Blue);
+            ChangeColor(tbProgram, 0, "string", Color.Blue);
+            ChangeColor(tbProgram, 0, "double", Color.Blue);
+            ChangeColor(tbProgram, 0, "float", Color.Blue);
+            ChangeColor(tbProgram, 0, "string", Color.Blue);
+            ChangeColor(tbProgram, 0, "long", Color.Blue);
+            ChangeColor(tbProgram, 0, "short", Color.Blue);
+            //find condictions
+            ChangeColor(tbProgram, 0, "if", Color.Blue);
+            ChangeColor(tbProgram, 0, "while", Color.Blue);
+            ChangeColor(tbProgram, 0, "for", Color.Blue);
+            ChangeColor(tbProgram, 0, "foreach", Color.Blue);
+
+
+
+
+            //check ()
+
+            // if () = (
+            //if (FindRegexCount(tbProgram, 1, @"\(.*?\)") != FindRegexCount(tbProgram, 1, "\\("))
+            if (FindRegexCount(tbProgram, 1, @"(.*)") != FindRegexCount(tbProgram, 0, "\\("))
+            {
+
+                ListViewItem item = new ListViewItem();
+                item.Text = error_no.ToString();
+                error_no++;
+                item.SubItems.Add("");
+                item.SubItems.Add("Error with parenthese");
+                List_Error.Items.Add(item);
+                //Errors.Add("Error with parenthese");
+            }
+
+
+            if (FindRegexCount(tbProgram, 1, @"(.*)") != FindRegexCount(tbProgram, 0, "\\)"))
+            {
+
+                ListViewItem item = new ListViewItem();
+                item.Text = error_no.ToString();
+                error_no++;
+                item.SubItems.Add("");
+                item.SubItems.Add("Error with parenthese");
+                List_Error.Items.Add(item);
+            }
+
+            if (FindRegexCount(tbProgram, 1, "{.*}") != FindRegexCount(tbProgram, 1, "\\{"))
+            {
+
+                ListViewItem item = new ListViewItem();
+                item.Text = error_no.ToString();
+                error_no++;
+                item.SubItems.Add("");
+                item.SubItems.Add("Error with curly brackets");
+                List_Error.Items.Add(item);
+                //Errors.Add("Error with curly brackets");
+            }
+
+
+            if (FindRegexCount(tbProgram, 1, "{.*}") != FindRegexCount(tbProgram, 1, "\\}"))
+            {
+
+                ListViewItem item = new ListViewItem();
+                item.Text = error_no.ToString();
+                error_no++;
+                item.SubItems.Add("");
+                item.SubItems.Add("Error with curly brackets");
+                List_Error.Items.Add(item);
+                //Errors.Add("Error with curly brackets");
+            }
+
+
+            tbProgram.SelectionColor = Color.Black;
+        }
+
+        private static int FindRegexCount(RichTextBox RTB, int StartPos, string Regex1)
+        {
+            Regex R = new Regex(Regex1);
+            RTB.Select(RTB.Text.Length, 1);
+            MatchCollection New_Line_Match = R.Matches(RTB.Text);
+            return New_Line_Match.Count;
         }
     }
 }
