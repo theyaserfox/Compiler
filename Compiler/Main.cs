@@ -600,7 +600,7 @@ end";
             //return
             ChangeColor(tbProgram, 0, "return", Color.Blue);
 
-            if (FindRegexCount(tbProgram, 1, @"\(.*?\)") != FindRegexCount(tbProgram, 1, "\\("))
+       /*     if (FindRegexCount(tbProgram, 1, @"\(.*?\)") != FindRegexCount(tbProgram, 1, "\\("))
             {
 
                 ListViewItem item = new ListViewItem();
@@ -644,10 +644,70 @@ end";
                 item.SubItems.Add("");
                 item.SubItems.Add("Error with curly brackets");
                 List_Error.Items.Add(item);
+            }*/
+            int leftSquatebrackt = 0;
+            int rightSquarebracket = 0;
+            int leftParentheses = 0;
+            int rightParentheses = 0;
+            int rightbraces = 0;
+            int leftbraces = 0;
+
+            for (int i = 0; i < tbProgram.Text.Length;i++ )
+            {
+                if (tbProgram.Text[i] == '[')
+                {
+                    leftSquatebrackt++;
+                }
+                else if(tbProgram.Text[i] == ']')
+                {
+                    rightSquarebracket++;
+                }
+                else if (tbProgram.Text[i] == '(')
+                {
+                    leftParentheses++;
+                }
+                else if (tbProgram.Text[i] == ')')
+                {
+                    rightParentheses++;
+                }
+                else if (tbProgram.Text[i] == '{')
+                {
+                    leftbraces++;
+                }
+                else if (tbProgram.Text[i] == '}')
+                {
+                    rightbraces++;
+                }
+            }
+            if(leftSquatebrackt!=rightSquarebracket)
+            {
+                ListViewItem item = new ListViewItem();
+                item.Text = error_no.ToString();
+                error_no++;
+                item.SubItems.Add("");
+                item.SubItems.Add("Error In Arary Bracket");
+                List_Error.Items.Add(item);
+            }
+            if (rightParentheses != leftParentheses)
+            {
+                ListViewItem item = new ListViewItem();
+                item.Text = error_no.ToString();
+                error_no++;
+                item.SubItems.Add("");
+                item.SubItems.Add("Error In praentheses");
+                List_Error.Items.Add(item);
+            }
+            if(leftbraces!=rightbraces)
+            {
+                ListViewItem item = new ListViewItem();
+                item.Text = error_no.ToString();
+                error_no++;
+                item.SubItems.Add("");
+                item.SubItems.Add("Error In braces");
+                List_Error.Items.Add(item);
             }
 
-
-            tbProgram.SelectionColor = Color.Black;
+                tbProgram.SelectionColor = Color.Black;
         }
 
         private static int FindRegexCount(RichTextBox RTB, int StartPos, string Regex1)
