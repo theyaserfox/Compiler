@@ -597,23 +597,23 @@ end";
             //find comments            
             ChangeColor(tbProgram, 0, "(/\\*([^*]|[\r\n]|(\\*+([^*/]|[\r\n])))*\\*+/)|(//.*)", Color.Green);
             //find types
-            ChangeColor(tbProgram, 0, "int", Color.Blue);
-            ChangeColor(tbProgram, 0, "string", Color.Blue);
-            ChangeColor(tbProgram, 0, "double", Color.Blue);
-            ChangeColor(tbProgram, 0, "float", Color.Blue);
-            ChangeColor(tbProgram, 0, "long", Color.Blue);
-            ChangeColor(tbProgram, 0, "short", Color.Blue);
+            ChangeColor(tbProgram, 0, "\bint\b", Color.Blue);
+            ChangeColor(tbProgram, 0, "\bstring\b", Color.Blue);
+            ChangeColor(tbProgram, 0, "\bdouble\b", Color.Blue);
+            ChangeColor(tbProgram, 0, "\bfloat\b", Color.Blue);
+            ChangeColor(tbProgram, 0, "\blong\b", Color.Blue);
+            ChangeColor(tbProgram, 0, "\bshort\b", Color.Blue);
             //find condictions
-            ChangeColor(tbProgram, 0, "if", Color.Blue);
-            ChangeColor(tbProgram, 0, "while", Color.Blue);
-            ChangeColor(tbProgram, 0, "for", Color.Blue);
-            ChangeColor(tbProgram, 0, "foreach", Color.Blue);
+            ChangeColor(tbProgram, 0, "\bif\b", Color.Blue);
+            ChangeColor(tbProgram, 0, "\bwhile\b", Color.Blue);
+            ChangeColor(tbProgram, 0, "\bfor\b", Color.Blue);
+            ChangeColor(tbProgram, 0, "\bforeach\b", Color.Blue);
             //include
-            ChangeColor(tbProgram, 0, "#include", Color.Purple);
+            ChangeColor(tbProgram, 0, "\b#include\b", Color.Purple);
             //using
-            ChangeColor(tbProgram, 0, "using", Color.Blue);
+            ChangeColor(tbProgram, 0, "\busing\b", Color.Blue);
             //return
-            ChangeColor(tbProgram, 0, "return", Color.Blue);
+            ChangeColor(tbProgram, 0, "\breturn\b", Color.Blue);
 
        /*     if (FindRegexCount(tbProgram, 1, @"\(.*?\)") != FindRegexCount(tbProgram, 1, "\\("))
             {
