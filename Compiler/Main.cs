@@ -8,6 +8,7 @@ using System.Text;
 using System.Windows.Forms;
 using System.Text.RegularExpressions;
 using System.CodeDom.Compiler;
+using System.Diagnostics;
 
 namespace Compiler
 {
@@ -39,12 +40,13 @@ includelib \masm32\lib\debug.lib
 DBGWIN_EXT_INFO = 0
 .data
 ";
-
+        string path;
         int error_no = 1;
 
         public Main()
         {
             InitializeComponent();
+            runToolStripMenuItem.Enabled = false; //Run Is Disabled
         }
 
         private void compileToolStripMenuItem_Click(object sender, EventArgs e)
@@ -57,13 +59,65 @@ DBGWIN_EXT_INFO = 0
             tbCompiled.Text = Errors.Aggregate("", (current, error) => current + (error + Environment.NewLine));
         }
 
+        private void testToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            // create a new instance of save file dialoge
+            SaveFileDialog SFD = new SaveFileDialog();
+            //set the title of the save file dialog
+            SFD.Title = "Save EXE to ....";
+            //adding a filter to make sure it saved as exe
+            SFD.Filter = "EXE|*.exe";
+
+
+            // if the user pressed ok on the form build it
+            if (SFD.ShowDialog() == System.Windows.Forms.DialogResult.OK)
+            {
+                //clear the list
+                List_Error.Items.Clear();
+                //path = file name
+                path = SFD.FileName;
+
+                //Create a code Provider for the language path
+                CodeDomProvider Code_Provider = CodeDomProvider.CreateProvider("CSharp");//create the pramter for code provider            }
+                CompilerParameters prameters = new CompilerParameters(); //create prameters for code cmpiler
+                prameters.GenerateExecutable = true; // make it that it generats an executable
+                prameters.OutputAssembly = SFD.FileName; // output location == save file dialoge
+
+                //compile the code in the rich box, return the error
+                CompilerResults Results = Code_Provider.CompileAssemblyFromSource(prameters, tbProgram.Text);
+
+                //error cheaking
+                if (Results.Errors.Count > 0)
+                {
+                    //loop through each error
+                    foreach (CompilerError cmperror in Results.Errors)
+                    {
+                        ListViewItem item = new ListViewItem();
+                        item.Text = cmperror.ErrorNumber + error_no;
+                        item.SubItems.Add(cmperror.Line.ToString());
+                        item.SubItems.Add(cmperror.ErrorText);
+                        List_Error.Items.Add(item);
+
+                    }
+                }
+                else
+                {
+                    runToolStripMenuItem.Enabled = true;
+                }
+            }
+        }
+
+        private void runToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            Process.Start(path);
+        }
+
         private void clearToolStripMenuItem_Click(object sender, System.EventArgs e)
         {
             literalsView.Items.Clear();
             constantsView.Items.Clear();
             symbolsView.Items.Clear();
             reservedWordsView.Items.Clear();
-            tbProgram.Clear();
             tbCompiled.Clear();
             List_Error.Items.Clear();
             error_no = 1;
@@ -72,8 +126,10 @@ DBGWIN_EXT_INFO = 0
         public String Compile(String program)
         {
             IEnumerable<string> commands = Commands(program);
+            int line = 0;
             foreach (var tokens in commands.Select(Parce))
             {
+                line++;
                 //#region show tokens
                 //string show = "";
                 //for (int i = 0; i < tokens.Count(); i++)
@@ -146,7 +202,13 @@ DBGWIN_EXT_INFO = 0
                 {
                     if (declared.Contains(tokens[0]))
                     {
-                        Errors.Add("Variable " + tokens[0] + " already declared");
+                        ListViewItem item = new ListViewItem();
+                        item.Text = error_no.ToString();
+                        error_no++;
+                        item.SubItems.Add(line.ToString());
+                        item.SubItems.Add("Variable " + tokens[0] + " already declared");
+                        List_Error.Items.Add(item);
+                        //Errors.Add("Variable " + tokens[0] + " already declared");
                     }
                     else
                     {
@@ -165,12 +227,24 @@ DBGWIN_EXT_INFO = 0
                         }
                         else
                         {
-                            Errors.Add("Variable " + tokens[0] + " already initialized");
+                            ListViewItem item = new ListViewItem();
+                            item.Text = error_no.ToString();
+                            error_no++;
+                            item.SubItems.Add(line.ToString());
+                            item.SubItems.Add("Variable " + tokens[0] + " already initialized");
+                            List_Error.Items.Add(item);
+                            //Errors.Add("Variable " + tokens[0] + " already initialized");
                         }
                     }
                     else
                     {
-                        Errors.Add("Variable " + tokens[0] + " not declared");
+                        ListViewItem item = new ListViewItem();
+                        item.Text = error_no.ToString();
+                        error_no++;
+                        item.SubItems.Add(line.ToString());
+                        item.SubItems.Add("Variable " + tokens[0] + " already declared");
+                        List_Error.Items.Add(item);
+                        //Errors.Add("Variable " + tokens[0] + " not declared");
                     }
                 }
                 else if ((IsVariable(tokens[0])) && (tokens[1] == "=") && (IsExpresion(tokens[2])))
@@ -182,7 +256,13 @@ DBGWIN_EXT_INFO = 0
                 }
                 else
                 {
-                    Errors.Add("Unknown command (Error in expression)");
+                    ListViewItem item = new ListViewItem();
+                    item.Text = error_no.ToString();
+                    error_no++;
+                    item.SubItems.Add(line.ToString());
+                    item.SubItems.Add("Unknown command (Error in expression)");
+                    List_Error.Items.Add(item);
+                    //Errors.Add("Unknown command (Error in expression)");
                 }
             }
 
