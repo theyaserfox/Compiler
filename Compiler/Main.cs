@@ -142,7 +142,7 @@ DBGWIN_EXT_INFO = 0
                 for (int i = 0; i < tokens.Count(); i++)
                 {
                     IEnumerable<string> words = tokens[i].Split(separator, StringSplitOptions.RemoveEmptyEntries);
-                  
+
                     foreach (var wordNow in words)
                     {
                         string word = wordNow;
@@ -158,9 +158,9 @@ DBGWIN_EXT_INFO = 0
                                 predecessor += word[iii];
                             }
                             string include = "";
-                            for ( ;iii < word.Length; iii++)
+                            for (; iii < word.Length; iii++)
                             {
-                                if(word[iii] == '>')
+                                if (word[iii] == '>')
                                 {
                                     iii++;
                                     symbolsView.Items.Add(">");
@@ -177,8 +177,9 @@ DBGWIN_EXT_INFO = 0
                             word = word.Substring(iii);
                         }
 
-                        for(ii = 0; ii < word.Count(); ii++) {
-                            
+                        for (ii = 0; ii < word.Count(); ii++)
+                        {
+
                             if (IsSymbol(word[ii].ToString()))
                             {
                                 symbolsView.Items.Add(word[ii].ToString());
@@ -198,7 +199,52 @@ DBGWIN_EXT_INFO = 0
                 }
                 #endregion
 
-                if (IsVariable(tokens[0]) && (tokens.Count() == 1))
+                if ((tokens.Count() == 1))
+                {
+                    string[] words = tokens[0].Split(separator, StringSplitOptions.RemoveEmptyEntries);
+                    if (words.Count() == 2 && IsType(words[0]) && IsVariable(words[1]))
+                    {
+                        if (declared.Contains(words[1]))
+                        {
+                            ListViewItem item = new ListViewItem();
+                            item.Text = error_no.ToString();
+                            error_no++;
+                            item.SubItems.Add(line.ToString());
+                            item.SubItems.Add("Variable " + words[1] + " already declared");
+                            List_Error.Items.Add(item);
+                        }
+                        else
+                        {
+                            declared.Add((words[1]));
+                        }
+                    }
+                    else if (words.Count() == 1 && IsVariable(words[0]))
+                    {
+                        if (declared.Contains(words[0]))
+                        {
+                            ListViewItem item = new ListViewItem();
+                            item.Text = error_no.ToString();
+                            error_no++;
+                            item.SubItems.Add(line.ToString());
+                            item.SubItems.Add("Variable " + words[0] + " already declared");
+                            List_Error.Items.Add(item);
+                        }
+                        else
+                        {
+                            declared.Add((words[0]));
+                        }
+                    }
+                    else
+                    {
+                        ListViewItem item = new ListViewItem();
+                        item.Text = error_no.ToString();
+                        error_no++;
+                        item.SubItems.Add(line.ToString());
+                        item.SubItems.Add("Unknown command (Error in expression)");
+                        List_Error.Items.Add(item);
+                    }
+                }
+                else if (IsVariable(tokens[0]) && (tokens.Count() == 1))
                 {
                     if (declared.Contains(tokens[0]))
                     {
@@ -208,7 +254,6 @@ DBGWIN_EXT_INFO = 0
                         item.SubItems.Add(line.ToString());
                         item.SubItems.Add("Variable " + tokens[0] + " already declared");
                         List_Error.Items.Add(item);
-                        //Errors.Add("Variable " + tokens[0] + " already declared");
                     }
                     else
                     {
@@ -233,7 +278,6 @@ DBGWIN_EXT_INFO = 0
                             item.SubItems.Add(line.ToString());
                             item.SubItems.Add("Variable " + tokens[0] + " already initialized");
                             List_Error.Items.Add(item);
-                            //Errors.Add("Variable " + tokens[0] + " already initialized");
                         }
                     }
                     else
@@ -242,9 +286,8 @@ DBGWIN_EXT_INFO = 0
                         item.Text = error_no.ToString();
                         error_no++;
                         item.SubItems.Add(line.ToString());
-                        item.SubItems.Add("Variable " + tokens[0] + " already declared");
+                        item.SubItems.Add("Variable " + tokens[0] + " is not declared");
                         List_Error.Items.Add(item);
-                        //Errors.Add("Variable " + tokens[0] + " not declared");
                     }
                 }
                 else if ((IsVariable(tokens[0])) && (tokens[1] == "=") && (IsExpresion(tokens[2])))
@@ -262,7 +305,6 @@ DBGWIN_EXT_INFO = 0
                     item.SubItems.Add(line.ToString());
                     item.SubItems.Add("Unknown command (Error in expression)");
                     List_Error.Items.Add(item);
-                    //Errors.Add("Unknown command (Error in expression)");
                 }
             }
 
@@ -439,11 +481,38 @@ end";
         {
             switch (token)
             {
-                case "int":
+                case "using":
+                case "main":
+                case "return":
+
                 case "string":
+                case "double":
+                case "float":
+                case "long":
+                case "short":
+                case "int":
+
                 case "for":
                 case "while":
-                case "main":
+                case "if":
+                case "foreach":
+
+                    return true;
+            }
+            return false;
+        }
+
+        private bool IsType(String token)
+        {
+            switch (token)
+            {
+
+                case "string":
+                case "double":
+                case "float":
+                case "long":
+                case "short":
+                case "int":
                     return true;
             }
             return false;
@@ -468,7 +537,7 @@ end";
         private List<string> Commands(String program)
         {
             int semi = program.Count(c => c == ';');
-            for(int i = 0; i < semi; i++)
+            for (int i = 0; i < semi; i++)
                 symbolsView.Items.Add(";");
 
             var separator = new[] { ";", "\r\n" };
@@ -499,16 +568,17 @@ end";
 
         private void tbProgram_TextChanged(object sender, EventArgs e)
         {
-            
-            // .Items.Clear();
+
             error_no = 1;
             List_Error.Items.Clear();
             tbProgram.SelectionColor = Color.Black;
             //No semi_colon
             ChangeColor(tbProgram, 0, "[^,;]+", Color.Red);
             ChangeColor(tbProgram, 0, "#.*", Color.Black);
-            ChangeColor(tbProgram, 0, "#include", Color.Purple);
+            ChangeColor(tbProgram, 0, ".*?\\(\\)", Color.Black);
             ChangeColor(tbProgram, 0, ".*?;", Color.Black);
+            ChangeColor(tbProgram, 0, "{?", Color.Black);
+            ChangeColor(tbProgram, 0, "}?", Color.Black);
             //find comments            
             ChangeColor(tbProgram, 0, "(/\\*([^*]|[\r\n]|(\\*+([^*/]|[\r\n])))*\\*+/)|(//.*)", Color.Green);
             //find types
@@ -516,7 +586,6 @@ end";
             ChangeColor(tbProgram, 0, "string", Color.Blue);
             ChangeColor(tbProgram, 0, "double", Color.Blue);
             ChangeColor(tbProgram, 0, "float", Color.Blue);
-            ChangeColor(tbProgram, 0, "string", Color.Blue);
             ChangeColor(tbProgram, 0, "long", Color.Blue);
             ChangeColor(tbProgram, 0, "short", Color.Blue);
             //find condictions
@@ -524,13 +593,13 @@ end";
             ChangeColor(tbProgram, 0, "while", Color.Blue);
             ChangeColor(tbProgram, 0, "for", Color.Blue);
             ChangeColor(tbProgram, 0, "foreach", Color.Blue);
+            //include
+            ChangeColor(tbProgram, 0, "#include", Color.Purple);
+            //using
+            ChangeColor(tbProgram, 0, "using", Color.Blue);
+            //return
+            ChangeColor(tbProgram, 0, "return", Color.Blue);
 
-
-
-
-            //check ()
-
-            // if () = (
             if (FindRegexCount(tbProgram, 1, @"\(.*?\)") != FindRegexCount(tbProgram, 1, "\\("))
             {
 
@@ -540,7 +609,6 @@ end";
                 item.SubItems.Add("");
                 item.SubItems.Add("Error with parenthese");
                 List_Error.Items.Add(item);
-                //Errors.Add("Error with parenthese");
             }
 
 
@@ -564,7 +632,6 @@ end";
                 item.SubItems.Add("");
                 item.SubItems.Add("Error with curly brackets");
                 List_Error.Items.Add(item);
-                //Errors.Add("Error with curly brackets");
             }
 
 
@@ -577,7 +644,6 @@ end";
                 item.SubItems.Add("");
                 item.SubItems.Add("Error with curly brackets");
                 List_Error.Items.Add(item);
-                //Errors.Add("Error with curly brackets");
             }
 
 
