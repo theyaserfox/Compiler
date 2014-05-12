@@ -50,8 +50,7 @@ namespace Compiler
             error_no = 1;
             List_Error.Items.Clear();
             tbProgram.SelectionColor = Color.Black;
-            //No semi_colon
-            //ChangeColor(tbProgram, 0, "[^,;]+", Color.Red);
+            //semi colon 
             if (!tbProgram.Text.EndsWith("\n"))
                 if (ChangeColor(tbProgram, 0, ".*[^;]$", Color.Red) && !tbCompiled.Text.EndsWith("\n"))
                 {
@@ -88,6 +87,65 @@ namespace Compiler
             ChangeColor(tbProgram, 0, @"\busing\b", Color.Blue);
             //return
             ChangeColor(tbProgram, 0, @"\breturn\b", Color.Blue);
+
+            // doesnt alliw any word start with no.
+            Regex Equal = new Regex(".*=.*;|.*=.*");
+            MatchCollection M_Equal = Equal.Matches(tbProgram.Text);
+            foreach (Match Match in M_Equal)
+            {
+                Regex Start_no = new Regex("\\d\\w+");
+                foreach (Match m in Start_no.Matches(Match.Value))
+                {
+                    ListViewItem item = new ListViewItem();
+                    item.Text = error_no.ToString();
+                    error_no++;
+                    item.SubItems.Add("Current");
+                    item.SubItems.Add("Word Start with no.");
+                    List_Error.Items.Add(item);
+                                
+                }
+               
+            }
+
+            //doesnt allow  int x = ; 
+            Regex Equal1 = new Regex("=.*;|=.*");
+            MatchCollection M_Equal1 = Equal1.Matches(tbProgram.Text);
+            foreach (Match Match1 in M_Equal1)
+            {
+                    string temp =Match1.Value.Remove(0, 1);
+                    temp =temp.Replace(" ", "");
+                    temp = temp.Replace(";", "");
+                    if (temp == null || temp == string.Empty)
+                    {
+                        ListViewItem item = new ListViewItem();
+                        item.Text = error_no.ToString();
+                        error_no++;
+                        item.SubItems.Add("Current");
+                        item.SubItems.Add("Equality LHS is not right");
+                        List_Error.Items.Add(item);
+                    }             
+                 }
+
+            //doesnt allow   a + b = c  but allow  a+=c
+             Regex Equal_RHS = new Regex(".*=|.*=.*");
+            MatchCollection M_Equal_RHS = Equal_RHS.Matches(tbProgram.Text);
+            foreach (Match MatchRHS in M_Equal_RHS)
+            {
+                string temp = MatchRHS.Value;
+                if(temp.Contains("+=") || temp.Contains("-=") || temp.Contains("/=") || temp.Contains("*="))
+                    break;
+                temp = temp.Remove(temp.Length - 1);
+                if (temp.Contains("+") || temp.Contains("-") || temp.Contains("/") || temp.Contains("*"))
+                {
+                    ListViewItem item = new ListViewItem();
+                    item.Text = error_no.ToString();
+                    error_no++;
+                    item.SubItems.Add("Current");
+                    item.SubItems.Add("Can't assing on an Equation");
+                    List_Error.Items.Add(item);
+                }
+            }
+
 
             /*if (FindRegexCount(tbProgram, 1, @"\(.*?\)") != FindRegexCount(tbProgram, 1, "\\("))
             {
