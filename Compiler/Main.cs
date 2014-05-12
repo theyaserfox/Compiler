@@ -12,7 +12,6 @@ using System.Diagnostics;
 
 namespace Compiler
 {
-
     public partial class Main : Form
     {
         string path;
@@ -82,6 +81,7 @@ namespace Compiler
             ChangeColor(tbProgram, 0, @"\bwhile\b", Color.Blue);
             ChangeColor(tbProgram, 0, @"\bfor\b", Color.Blue);
             ChangeColor(tbProgram, 0, @"\bforeach\b", Color.Blue);
+            ChangeColor(tbProgram, 0, @"\bswitch\b", Color.Blue);
             //include
             ChangeColor(tbProgram, 0, "#include", Color.Purple);
             //using
@@ -247,6 +247,8 @@ namespace Compiler
             constantsView.Items.Clear();
             symbolsView.Items.Clear();
             reservedWordsView.Items.Clear();
+            predecessorsView.Items.Clear();
+            includesView.Items.Clear();
             Compiler compiler = new Compiler();
             tbCompiled.Text = compiler.Compile(tbProgram.Text, ref error_no, ref List_Error, ref literalsView, ref constantsView, ref symbolsView, ref reservedWordsView, ref predecessorsView, ref includesView);
             //tbCompiled.Text = Errors.Aggregate("", (current, error) => current + (error + Environment.NewLine));
@@ -311,6 +313,8 @@ namespace Compiler
             constantsView.Items.Clear();
             symbolsView.Items.Clear();
             reservedWordsView.Items.Clear();
+            predecessorsView.Items.Clear();
+            includesView.Items.Clear();
             tbCompiled.Clear();
             List_Error.Items.Clear();
             error_no = 1;

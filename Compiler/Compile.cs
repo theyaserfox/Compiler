@@ -61,26 +61,110 @@ DBGWIN_EXT_INFO = 0
             }
             #endregion
             
-            foreach (var tokens in commands.Select(Parce))
+            IEnumerable<string[]> newCommands = commands.Select(Parce);
+
+            for (int element = 0; element < newCommands.Count(); element++)
             {
+                var tokens = newCommands.ElementAt(element);
                 line++;
-            
+
                 #region scanning
                 var separator = new[] { " " };
                 for (int i = 0; i < tokens.Count(); i++)
                 {
                     #region if_prob
-                    Regex R4 = new Regex("if.*\\(.*?");
-                    MatchCollection New_Line_Match2 = R4.Matches(tokens[i]);
-
-                    if (New_Line_Match2.Count != 0)
+                    Regex Rif = new Regex(@"\bif\b");
+                    MatchCollection if_Match = Rif.Matches(tokens[i]);
+                    if (if_Match.Count != 0)
                     {
-                        ListViewItem item = new ListViewItem();
-                        item.Text = error_no.ToString();
-                        error_no++;
-                        item.SubItems.Add(line.ToString());
-                        item.SubItems.Add("Error In The If Experession");
-                        List_Error.Items.Add(item);
+                        Regex R4 = new Regex("if\\(.*\\)");
+                        MatchCollection New_Line_Match2 = R4.Matches(tokens[i]);
+
+                        if (New_Line_Match2.Count == 0)
+                        {
+                            ListViewItem item = new ListViewItem();
+                            item.Text = error_no.ToString();
+                            error_no++;
+                            item.SubItems.Add(line.ToString());
+                            item.SubItems.Add("Error In The Condition of if statement");
+                            List_Error.Items.Add(item);
+                        }
+                    }
+                    #endregion
+
+                    #region while_prob
+                    Regex Rwhile = new Regex(@"\bwhile\b");
+                    MatchCollection while_Match = Rwhile.Matches(tokens[i]);
+                    if (while_Match.Count != 0)
+                    {
+                        Regex R4 = new Regex("while\\(.*\\)");
+                        MatchCollection New_Line_Match2 = R4.Matches(tokens[i]);
+
+                        if (New_Line_Match2.Count == 0)
+                        {
+                            ListViewItem item = new ListViewItem();
+                            item.Text = error_no.ToString();
+                            error_no++;
+                            item.SubItems.Add(line.ToString());
+                            item.SubItems.Add("Error In The Condition of while statement");
+                            List_Error.Items.Add(item);
+                        }
+                    }
+                    #endregion
+
+                    #region switch_prob
+                    Regex Rswitch = new Regex(@"\bswitch\b");
+                    MatchCollection switch_Match = Rswitch.Matches(tokens[i]);
+                    if (switch_Match.Count != 0)
+                    {
+                        Regex R4 = new Regex("switch\\(.*\\)");
+                        MatchCollection New_Line_Match2 = R4.Matches(tokens[i]);
+
+                        if (New_Line_Match2.Count == 0)
+                        {
+                            ListViewItem item = new ListViewItem();
+                            item.Text = error_no.ToString();
+                            error_no++;
+                            item.SubItems.Add(line.ToString());
+                            item.SubItems.Add("Error In The Condition of switch statement");
+                            List_Error.Items.Add(item);
+                        }
+                    }
+                    #endregion
+
+                    #region for_prob
+                    Regex Rfor = new Regex(@"\bfor\b");
+                    MatchCollection for_Match = Rfor.Matches(tokens[i]);
+                    if (for_Match.Count != 0)
+                    {
+                        MessageBox.Show((i + 2).ToString() + " " + tokens.Count().ToString());
+                        if (element + 2 < newCommands.Count())
+                        {
+
+                            string fullFor = newCommands.ElementAt(i)[0] + ";" + newCommands.ElementAt(i+1)[0] + ";" + newCommands.ElementAt(i+2)[0];
+                            MessageBox.Show(fullFor);
+                            Regex R4 = new Regex("for\\(.*;.*;.*\\)");
+                            MatchCollection New_Line_Match2 = R4.Matches(fullFor);
+
+                            if (New_Line_Match2.Count == 0)
+                            {
+                                ListViewItem item = new ListViewItem();
+                                item.Text = error_no.ToString();
+                                error_no++;
+                                item.SubItems.Add(line.ToString());
+                                item.SubItems.Add("Error In The for statement");
+                                List_Error.Items.Add(item);
+                            }
+                        }
+                        else
+                        {
+                            ListViewItem item = new ListViewItem();
+                            item.Text = error_no.ToString();
+                            error_no++;
+                            item.SubItems.Add(line.ToString());
+                            item.SubItems.Add("Error In The for statement");
+                            List_Error.Items.Add(item);
+                        }
                     }
                     #endregion
 
@@ -91,6 +175,8 @@ DBGWIN_EXT_INFO = 0
                         string word = wordNow;
                         string now = "";
                         int ii = 0;
+
+                        #region includes
                         if (word[ii] == '#')
                         {
                             symbolsView.Items.Add("#");
@@ -119,6 +205,7 @@ DBGWIN_EXT_INFO = 0
                             predecessorsView.Items.Add(predecessor);
                             word = word.Substring(iii);
                         }
+                        #endregion
 
                         for (ii = 0; ii < word.Count(); ii++)
                         {
@@ -139,6 +226,7 @@ DBGWIN_EXT_INFO = 0
                         else if (IsVariable(now))
                             literalsView.Items.Add(now);
                     }
+
                 }
                 #endregion
 
@@ -440,6 +528,7 @@ end";
                 case "while":
                 case "if":
                 case "foreach":
+                case "switch":
 
                     return true;
             }
