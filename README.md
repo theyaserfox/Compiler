@@ -10,3 +10,9 @@ Errors already under detection :
 - Error In Arary Bracket
 - Error In The If Experession
 - There is no main
+- Error In The Condition of if statement
+- Error In The Condition of while statement
+- Error In The Condition of switch statement
+- Error In The for statement
+- Variable Start with number is not allowed
+- Equality in LHS is not allowed
